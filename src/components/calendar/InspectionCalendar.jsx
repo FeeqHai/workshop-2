@@ -1,92 +1,102 @@
+// InspectionCalendar.jsx (updated integration)
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import "./calendar.css";
+import AddInspectionEvent from "./AddInspectionEvent";
+import "./calendar.css"; // your existing calendar styles
 
 export default function InspectionCalendar() {
-  const calendarRef = useRef(null); // <-- ref to FullCalendar instance
-
+  const calendarRef = useRef(null);
   const [view, setView] = useState("dayGridMonth");
-  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-  const [selectedInspector, setSelectedInspector] = useState("all");
-  const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedDate, setSelectedDate] = useState("");
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelDateISO, setPanelDateISO] = useState(null);
+  const [userEvents, setUserEvents] = useState([]);
 
-  // Update height on window resize
   useEffect(() => {
-    const handleResize = () => setWindowHeight(window.innerHeight);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+    const api = calendarRef.current?.getApi();
+    if (api) {
+        // Use a short delay to allow the CSS transition to complete before resizing
+        const timeout = setTimeout(() => {
+            api.updateSize();
+        }, 260); // 300ms is slightly longer than the 260ms transition
 
-  // Sample events
-  const events = useMemo(
-    () => [
-      {
-        id: 1,
-        title: "Inspection A",
-        start: "2025-11-15T09:00",
-        extendedProps: { inspector: "Inspector A", status: "pending" },
-      },
-      {
-        id: 2,
-        title: "Inspection B",
-        start: "2025-11-16T14:00",
-        extendedProps: { inspector: "Inspector B", status: "in-progress" },
-      },
-      {
-        id: 3,
-        title: "Inspection C",
-        start: "2025-11-17T10:00",
-        extendedProps: { inspector: "Inspector A", status: "completed" },
-      },
-    ],
-    []
-  );
+        return () => clearTimeout(timeout);
+    }
+    }, [panelOpen]);
 
-  // Filtered events
+  // base sample events (keep or replace with your data)
+  const baseEvents = useMemo(() => ([
+    {
+      id: 1, title: "Inspection A", start: "2025-11-15T09:00",
+      extendedProps: { inspector: "Inspector A", status: "pending" }
+    },
+    {
+      id: 2, title: "Inspection B", start: "2025-11-16T14:00",
+      extendedProps: { inspector: "Inspector B", status: "in-progress" }
+    }
+  ]), []);
+
+  const allEvents = [...baseEvents, ...userEvents];
+
+  // filters (kept simple)
+  const [inspectorFilter, setInspectorFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("");
+
   const filteredEvents = useMemo(() => {
-    return events.filter((evt) => {
-      const matchInspector =
-        selectedInspector === "all" || evt.extendedProps.inspector === selectedInspector;
-      const matchStatus =
-        selectedStatus === "all" || evt.extendedProps.status === selectedStatus;
-      const matchDate =
-        !selectedDate || evt.start.startsWith(selectedDate);
-      return matchInspector && matchStatus && matchDate;
+    return allEvents.filter(evt => {
+      const mi = inspectorFilter === "all" || evt.extendedProps?.inspector === inspectorFilter;
+      const ms = statusFilter === "all" || evt.extendedProps?.status === statusFilter;
+      const md = !dateFilter || evt.start.startsWith(dateFilter);
+      return mi && ms && md;
     });
-  }, [events, selectedInspector, selectedStatus, selectedDate]);
+  }, [allEvents, inspectorFilter, statusFilter, dateFilter]);
 
-  // Change view when dropdown changes
+  // change view when dropdown changes
   useEffect(() => {
-    const calendarApi = calendarRef.current?.getApi();
-    if (calendarApi) calendarApi.changeView(view);
+    const api = calendarRef.current?.getApi();
+    if (api) api.changeView(view);
   }, [view]);
 
-  // Navigate to date when date input changes
-  useEffect(() => {
-    if (!selectedDate) return;
-    const calendarApi = calendarRef.current?.getApi();
-    if (calendarApi) calendarApi.gotoDate(selectedDate);
-  }, [selectedDate]);
+  // date click opens panel and pre-fills the date
+  const handleDateClick = (info) => {
+    // info.dateStr is YYYY-MM-DD when clicking a day cell
+    setPanelDateISO(info.dateStr);
+    setPanelOpen(true);
+  };
 
-  const toolbarHeight = 56;
-  const calendarHeight = windowHeight - toolbarHeight;
+  // toolbar add button
+  const openCreatePanel = () => {
+    setPanelDateISO(null);
+    setPanelOpen(true);
+  };
+
+  // save event from panel
+  const handleSaveEvent = (newEvent) => {
+    // optionally you can normalize newEvent before adding
+    setUserEvents(prev => [...prev, newEvent]);
+    // jump to created date
+    try {
+      const api = calendarRef.current?.getApi();
+      if (api && newEvent.start) api.gotoDate(newEvent.start);
+    } catch (e) {}
+  };
+
+
+  // sample inspectors list (you can replace with dynamic)
+  const inspectors = ["Inspector A", "Inspector B", "Inspector C"];
 
   return (
     <div className="calendar-wrapper">
-      {/* TOP TOOLBAR */}
       <div className="top-toolbar">
-        <button
-          className="btn"
-          onClick={() => {
-            setSelectedDate(new Date().toISOString().split("T")[0]);
-          }}
-        >
-          Today
-        </button>
+        <button className="btn" onClick={() => {
+            const today = new Date().toISOString().split("T")[0];
+            setDateFilter(today);
+            const api = calendarRef.current?.getApi(); if (api) api.gotoDate(today);
+        }}>Today</button>
 
         <select value={view} onChange={(e) => setView(e.target.value)} className="btn">
           <option value="dayGridMonth">Month</option>
@@ -94,57 +104,48 @@ export default function InspectionCalendar() {
           <option value="timeGridDay">Day</option>
         </select>
 
-        <input
-          type="date"
-          className="date-input"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-        />
+        <input type="date" className="date-input" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} />
 
-        <select
-          className="btn"
-          value={selectedInspector}
-          onChange={(e) => setSelectedInspector(e.target.value)}
-        >
+        <select className="btn" value={inspectorFilter} onChange={(e) => setInspectorFilter(e.target.value)}>
           <option value="all">All Inspectors</option>
-          <option value="Inspector A">Inspector A</option>
-          <option value="Inspector B">Inspector B</option>
+          {inspectors.map((ins) => <option key={ins} value={ins}>{ins}</option>)}
         </select>
 
-        <select
-          className="btn"
-          value={selectedStatus}
-          onChange={(e) => setSelectedStatus(e.target.value)}
-        >
+        <select className="btn" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="all">All Status</option>
           <option value="pending">Pending</option>
           <option value="in-progress">In Progress</option>
           <option value="completed">Completed</option>
         </select>
 
-         <div className="status-legend">
-            <span className="legend-item pending">Pending</span>
-            <span className="legend-item in-progress">In Progress</span>
-            <span className="legend-item completed">Completed</span>
-          </div>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 8 }}>
+          <button className="btn btn-primary" onClick={openCreatePanel}>+ Create</button>
+        </div>
       </div>
 
-      {/* CALENDAR */}
-      <div className="calendar-container" style={{ height: calendarHeight }}>
-        <FullCalendar
-          ref={calendarRef} // <-- attach ref
-          plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-          initialView={view}
-          headerToolbar={false}
-          events={filteredEvents}
-          height="100%"
-           eventClassNames={(arg) => {
-            // Use the status from extendedProps to assign a class
-            const status = arg.event.extendedProps.status;
-            return status ? [status] : [];
-          }}
-        />
+    <div className="main-content-area">
+
+        <AddInspectionEvent
+          isOpen={panelOpen}
+          onClose={() => setPanelOpen(false)}
+          onSave={handleSaveEvent}
+          initialDateISO={panelDateISO}
+          inspectors={inspectors}
+        />
+      
+      <div className="calendar-container">
+          <FullCalendar
+            ref={calendarRef}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            initialView={view}
+            headerToolbar={false}
+            events={filteredEvents}
+            height="100%"
+            dateClick={handleDateClick}
+            eventClassNames={(arg) => [arg.event.extendedProps?.status || ""]}
+          />
+        </div>
+      </div>   
       </div>
-    </div>
   );
 }

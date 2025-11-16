@@ -6,6 +6,16 @@
   margin: 0;
   padding: 0;
   background: #f7f9fc;
+  position: relative; 
+  overflow: hidden; 
+  --panel-width: 380px;
+}
+
+.main-content-area {
+  display: flex; /* Establish flex context */
+  height: calc(100vh - 56px); /* 100vh - height of the .top-toolbar (adjust 56px if needed) */
+  width: 100%;
+  transition: transform 260ms cubic-bezier(.22,.9,.36,1);
 }
 
 .top-toolbar {
@@ -27,8 +37,10 @@
 }
 
 .calendar-container {
-  flex: 1;
+flex: 1; /* Calendar takes all remaining space */
   width: 100%;
+  min-width: 0; /* Allows the calendar to shrink */
+  transition: width 260ms cubic-bezier(.22,.9,.36,1); /* Transition calendar size too */
 }
 
 .fc {
