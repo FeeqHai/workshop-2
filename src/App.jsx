@@ -1,14 +1,18 @@
-// App.js
 import React from 'react';
-import BmiCalculator from './bmi-count.jsx';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Dashboard from '@/pages/Dashboard';
 
 function App() {
   return (
-    <div className="App">
-      <BmiCalculator />
-    </div>
+    <BrowserRouter>
+        <Routes>
+          <Route
+            path="/dashboard"
+            element={<Dashboard />} />
+        </Routes>
+    </BrowserRouter>
   );
 }
+
 
 export default App;
