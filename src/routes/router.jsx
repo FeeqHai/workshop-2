@@ -8,7 +8,8 @@ import { MainLayout } from "../components/Layout/MainLayout.jsx";
 
 // Pages
 // import login from '@/auth/login';
-import Dashboard from '../pages/Dashboard.jsx';
+import Dashboard from '../pages/dashboard';
+import SupervisorReview from '../pages/supervisorReview';
 import InspectionCalendar from '../pages/InspectionCalendar.jsx';
 // import GeneratorPage from '@/pages/GeneratorPage';
 
@@ -61,7 +62,7 @@ export const router = createBrowserRouter([
           },
           {
             path: '/supervisor-review',
-            element: <div>Supervisor Review & Approval</div>,
+            element: <SupervisorReview />,
           },
           {
             path: '/document-upload',
