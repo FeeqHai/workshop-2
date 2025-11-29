@@ -1,16 +1,25 @@
-import { Group, Burger, Box, Image } from '@mantine/core';
+import { Group, Burger, Box, Image, Container, Button } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 
 export function Header({ opened, toggle }) {
   const navigate = useNavigate();
 
   return (
-    <Box h="100%" px="md">
-      {/* justify="space-between" pushes the two inner Groups apart.
-         - Left Group: Contains Desktop Burger + Logo
-         - Right Group: Contains Mobile Burger
-      */}
-      <Group justify="space-between" h="100%">
+    <Box h={60} p={0}>
+      <Container  fluid  px={0} mx={80}  h="100%">
+        <Group justify="space-between" align="center" h="100%">
+          
+          {/* 1. Logo Area */}
+           <Image src="../src/assets/ipetro-logo.png" w={200} alt="IPETRO Logo" />
+
+          {/* 2. Desktop Menu */}
+          <Group gap={5} visibleFrom="xs">
+            {items}
+          </Group>
+
+          <Button variant="default">Log Out</Button>
+          {/* 3. Mobile Menu Button */}
+          <Burger opened={opened} onClick={toggle} hiddenFrom="xs" size="sm" />
         
         {/* --- LEFT SIDE CONTENTS --- */}
         <Group>
@@ -53,8 +62,8 @@ export function Header({ opened, toggle }) {
             aria-label="Toggle navigation"
           />
         </Group>
-        
       </Group>
+      </Container>
     </Box>
   );
 }

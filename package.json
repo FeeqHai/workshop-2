@@ -14,9 +14,16 @@
     "@fullcalendar/interaction": "^6.1.19",
     "@fullcalendar/react": "^6.1.19",
     "@fullcalendar/timegrid": "^6.1.19",
-    "@mantine/core": "^8.3.9",
-    "@mantine/hooks": "^8.3.9",
+    "@mantine/core": "^8.3.8",
+    "@mantine/form": "^8.3.8",
+    "@mantine/hooks": "^8.3.8",
+    "@mantine/tiptap": "^8.3.8",
+    "@mantinex/mantine-logo": "^2.0.0",
     "@tabler/icons-react": "^3.35.0",
+    "@tiptap/extension-link": "^3.11.0",
+    "@tiptap/extension-underline": "^3.11.0",
+    "@tiptap/react": "^3.11.0",
+    "@tiptap/starter-kit": "^3.11.0",
     "date-fns": "^4.1.0",
     "firebase": "^12.6.0",
     "gapi-script": "^1.2.0",
@@ -36,6 +43,9 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
     "globals": "^16.4.0",
+    "postcss": "^8.5.6",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
     "vite": "^7.1.7"
   }
 }
