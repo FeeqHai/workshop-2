@@ -3,12 +3,12 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 
 // Layouts & Guards
 // import ProtectedRoute from './ProtectedRoute';
-import { MainLayout } from "../components/Layout/mainLayout.jsx";
+import { MainLayout } from "../components/Layout/MainLayout.jsx";
 
 
 // Pages
 // import login from '@/auth/login';
-import Dashboard from '../pages/dashboard.jsx';
+import Dashboard from '../pages/Dashboard.jsx';
 import InspectionCalendar from '../pages/InspectionCalendar.jsx';
 // import GeneratorPage from '@/pages/GeneratorPage';
 
