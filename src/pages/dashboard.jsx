@@ -1,6 +1,6 @@
 import {Container, Title, SimpleGrid, Paper, Text } from "@mantine/core";
 
-export default function DashboardPage() {
+export default function Dashboard() {
   return (
     <Container mx={0} >
       {/* This Title will appear INSIDE the Main area of your AppShell */}

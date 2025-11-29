@@ -8,8 +8,8 @@ import { MainLayout } from "../components/Layout/MainLayout.jsx";
 
 // Pages
 // import login from '@/auth/login';
-import Dashboard from '../pages/dashboard';
-import SupervisorReview from '../pages/supervisorReview';
+import Dashboard from '../pages/Dashboard.jsx';
+import SupervisorReview from '../pages/SupervisorReview.jsx';
 import InspectionCalendar from '../pages/InspectionCalendar.jsx';
 // import GeneratorPage from '@/pages/GeneratorPage';
 
