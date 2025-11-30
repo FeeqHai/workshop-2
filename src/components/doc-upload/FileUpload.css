@@ -1,0 +1,49 @@
+/* Centering content */
+.upload-container {
+  max-width: 600px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header styling */
+.upload-container h2 {
+  text-align: center;
+  font-family: 'Roboto', sans-serif;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Styling the file upload area */
+.file-upload .p-button {
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-size: 14px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+}
+
+.file-upload .p-button:disabled {
+  background-color: #dcdcdc;
+  color: #888;
+}
+
+/* Styling status text */
+.status {
+  text-align: center;
+  color: #333;
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.status.success {
+  color: green;
+}
+
+.status.error {
+  color: red;
+}

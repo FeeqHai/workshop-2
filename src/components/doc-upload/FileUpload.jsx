@@ -1,83 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from "react";
+import { FileUpload } from "primereact/fileupload";
+import { storage } from "../../firebase/upload"; 
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Toast } from "primereact/toast";
+import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+import './FileUpload.css';
 
-const FileUpload = () => {
-  const [files, setFiles] = useState([]);
-  const [status, setStatus] = useState('');
+
+const FileUploadComponent = () => {
   const [isUploading, setIsUploading] = useState(false);
+  const [status, setStatus] = useState("");
+  const toast = useRef(null); // for showing success/error messages
 
-  const handleFileChange = (event) => {
-    const selectedFiles = Array.from(event.target.files || []);
-    setFiles(selectedFiles);
-    setStatus('');
-  };
-
-  const handleUpload = async (event) => {
-    event.preventDefault();
-
-    if (!files.length) {
-      setStatus('Please select at least one file to upload.');
-      return;
-    }
-
+  const handleUpload = async (e) => {
     setIsUploading(true);
-    setStatus('');
+    setStatus("Uploading...");
 
     try {
-      const formData = new FormData();
-      files.forEach((file) => formData.append('files', file));
-
-      // change this to your real backend endpoint
-      const res = await fetch('http://localhost:5000/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error('Upload failed');
-
-      setStatus('✅ Files uploaded successfully.');
-      setFiles([]);
+      for (const file of e.files) {
+        const storageRef = ref(storage, `documents/${Date.now()}-${file.name}`);
+        await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(storageRef);
+        console.log("Uploaded file URL:", url);
+      }
+      setStatus("✅ Files uploaded to Firebase successfully!");
+      toast.current.show({ severity: 'success', summary: 'Upload Success', detail: 'Files uploaded successfully.' });
     } catch (err) {
       console.error(err);
-      setStatus('❌ Upload failed. Please try again.');
+      setStatus("❌ Upload failed.");
+      toast.current.show({ severity: 'error', summary: 'Upload Failed', detail: 'There was an error uploading the files.' });
     } finally {
       setIsUploading(false);
     }
   };
 
   return (
-    <form onSubmit={handleUpload} style={{ marginTop: '1rem' }}>
-      <div>
-        <label htmlFor="documents">Select document(s): </label>
-        <input
-          id="documents"
-          type="file"
-          multiple
-          onChange={handleFileChange}
-          accept=".pdf,.doc,.docx,.xls,.xlsx,image/*"
-        />
-      </div>
+    <div>
+      <Toast ref={toast} /> {/* Toast component for success/error feedback */}
 
-      {files.length > 0 && (
-        <ul style={{ marginTop: '0.5rem' }}>
-          {files.map((file) => (
-            <li key={file.name}>
-              {file.name} ({(file.size / 1024).toFixed(1)} KB)
-            </li>
-          ))}
-        </ul>
-      )}
+      <FileUpload
+        customUpload
+        multiple
+        uploadHandler={handleUpload} // handles file upload
+        chooseLabel="Choose Files"
+        uploadLabel="Upload"
+        cancelLabel="Cancel"
+        disabled={isUploading} // disable during upload
+      />
 
-      <button
-        type="submit"
-        disabled={!files.length || isUploading}
-        style={{ marginTop: '0.75rem' }}
-      >
-        {isUploading ? 'Uploading…' : 'Upload'}
-      </button>
-
-      {status && <p style={{ marginTop: '0.5rem' }}>{status}</p>}
-    </form>
+      <p>{status}</p>
+    </div>
   );
 };
 
-export default FileUpload;
+export default FileUploadComponent;
